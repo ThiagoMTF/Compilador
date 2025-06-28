@@ -1,0 +1,6 @@
+__pycache__/parser.cpython-312.pyc
+__pycache__/scanner.cpython-312.pyc
+sources/__pycache__/afd.cpython-312.pyc
+sources/__pycache__/regras_gramatica.cpython-312.pyc
+sources/__pycache__/tabela_simbolos.cpython-312.pyc
+sources/__pycache__/tabela_sintatica.cpython-312.pyc
