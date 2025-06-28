@@ -31,8 +31,33 @@ class AnalisadorSintatico:
         self.token = valores[0]
 
     @staticmethod
-    def operacaoVazia():
+    def operacaoVazia(self, token_normalizado):
+        linhaEsperada = tabela_action[self.topPilha]
+        valoresEsperadosIndex = []
+        valoresEsperados = []
+        for valor in linhaEsperada:
+            if valor != '':
+                valoresEsperadosIndex.append(linhaEsperada.index(valor))
+        for valor in valoresEsperadosIndex:
+            valoresEsperados.append(tabela_action[-1][valor])
+        print(f'Erro Sintático em - Linha: {self.token[1]}, Coluna: {self.token[2]}! Aguardando ler {valoresEsperados} mas foi lido {token_normalizado[0]}')
+        self.error_panic(self, valoresEsperados)
+        self.ocorreuErro = True
         return ''
+
+    @staticmethod
+    def operacaoReduce(self, estado):
+        regra_da_gramatica = tabela_regras_gramatica[int(estado)]
+        beta = regra_da_gramatica[2]
+        producao = regra_da_gramatica[1]
+        alpha = regra_da_gramatica[0]
+        for _ in range(beta):
+            self.pilha.pop()
+        t = self.pilha[-1]
+        coluna = self.indiceItem(tabela_goTo, alpha)
+        goTo = tabela_goTo[t][coluna]
+        self.pilha.append(int(goTo))
+        print(f"{alpha} -> {producao}")
 
     def parser(self):
         try:
@@ -51,17 +76,7 @@ class AnalisadorSintatico:
                         if token_normalizado[0][0] in ('$', 'EOF'):
                             break
                         elif not token_normalizado[0][0] in ('$', 'EOF'):
-                            linhaEsperada = tabela_action[self.topPilha]
-                            valoresEsperadosIndex = []
-                            valoresEsperados = []
-                            for valor in linhaEsperada:
-                                if valor != '':
-                                    valoresEsperadosIndex.append(linhaEsperada.index(valor))
-                            for valor in valoresEsperadosIndex:
-                                valoresEsperados.append(tabela_action[-1][valor])
-                            print(f'Erro Sintático em - Linha: {self.token[1]}, Coluna: {self.token[2]}! Aguardando ler {valoresEsperados} mas foi lido {token_normalizado[0]}')
-                            self.error_panic(self, valoresEsperados)
-                            self.ocorreuErro = True
+                            self.operacaoVazia(self, token_normalizado)
                         
                 acao, estado = self.separaAcao(op)
                 if acao == 'S':
@@ -69,17 +84,7 @@ class AnalisadorSintatico:
                     self.token = self.scanner.SCANNER()
 
                 elif acao == 'R':
-                    regra_da_gramatica = tabela_regras_gramatica[int(estado)]
-                    beta = regra_da_gramatica[2]
-                    producao = regra_da_gramatica[1]
-                    alpha = regra_da_gramatica[0]
-                    for _ in range(beta):
-                        self.pilha.pop()
-                    t = self.pilha[-1]
-                    coluna = self.indiceItem(tabela_goTo, alpha)
-                    goTo = tabela_goTo[t][coluna]
-                    self.pilha.append(int(goTo))
-                    print(f"{alpha} -> {producao}")
+                    self.operacaoReduce(self, estado)
 
                 elif acao == 'A':
                     print("Aceito!")
